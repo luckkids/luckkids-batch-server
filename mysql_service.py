@@ -38,7 +38,7 @@ class MysqlService:
 
             columns = ', '.join(records[0].keys())
             placeholders = ', '.join(['%s'] * len(records[0]))
-            query = f"INSERT INTO mission_outcome ({columns}) VALUES ({placeholders})"
+            query = f"INSERT IGNORE INTO mission_outcome ({columns}) VALUES ({placeholders})"
 
             values = [list(record.values()) for record in records]
             cursor.executemany(query, values)

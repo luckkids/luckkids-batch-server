@@ -16,15 +16,15 @@ def lambda_handler(event, context):
                              user=os.getenv("MYSQL_USER"),
                              password=os.getenv("MYSQL_PASSWORD"))
         slack = Slack(os.getenv("WEBHOOK_URL"))
-        result = init_default(mysql)
+
+        result = init_default(mysql.get_mission())
         mysql.bulk_insert(result)
 
-        slack_success_message = (
+        slack.post(
             f":tada: *Mission Batch Success!* :tada:\n"
             f"> *Date:* {Time.get_kst_today_string()}\n"
             f"> *EndTime:* {str(Time.get_kst_now())}\n"
         )
-        slack.post(slack_success_message)
 
         return {
             'statusCode': 200,
@@ -33,13 +33,12 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        slack_fail_message = (
+        slack.post(
             f":exclamation: *Mission Batch Issue Detected!* :exclamation:\n"
             f"> *Date:* {Time.get_kst_today_string()}\n"
             f"> *EndTime:* {str(Time.get_kst_now())}\n"
             f"> *Error:* `{e}`\n"
         )
-        slack.post(slack_fail_message)
 
         return {
             'statusCode': 404,
@@ -48,13 +47,13 @@ def lambda_handler(event, context):
         }
 
 
-def init_default(mysql):
+def init_default(missions):
     records = []
 
     kst_now = Time.get_kst_now()
     today_string = Time.get_kst_today_string()
 
-    for record in mysql.get_mission():
+    for record in missions:
         new_record = {
             'created_date': kst_now,
             'updated_date': kst_now,
