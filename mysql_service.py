@@ -47,7 +47,7 @@ class MysqlService:
         except Exception as e:
             if connection:
                 connection.rollback()
-            raise Exception(f"Error occurred: {e}")
+            raise Exception(f"Error in MysqlService.bulk_insert: {e}") from e
 
         finally:
             if cursor:
@@ -64,4 +64,4 @@ class MysqlService:
                     result = cursor.fetchall()
                     return result
                 except Error as e:
-                    raise Exception(f"Error while fetching movie data: {e}") from e
+                    raise Exception(f"Error in MysqlService.get_mission: {e}") from e
