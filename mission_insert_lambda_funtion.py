@@ -43,7 +43,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 404,
             'body': e,
-            'endDate': Time.get_kst_now()
+            'endDate': str(Time.get_kst_now())
         }
 
 
