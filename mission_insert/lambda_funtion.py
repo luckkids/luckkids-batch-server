@@ -10,12 +10,13 @@ import os
 def lambda_handler(event, context):
     slack = None
     try:
+        slack = Slack(os.getenv("WEBHOOK_URL"))
+
         mysql = MysqlService(host=os.getenv("MYSQL_HOST"),
                              port=os.getenv("MYSQL_PORT"),
                              database=os.getenv("MYSQL_DATABASE"),
                              user=os.getenv("MYSQL_USER"),
                              password=os.getenv("MYSQL_PASSWORD"))
-        slack = Slack(os.getenv("WEBHOOK_URL"))
 
         result = init_default(mysql.get_mission())
         mysql.bulk_insert(result)
