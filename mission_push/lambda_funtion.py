@@ -1,9 +1,12 @@
 from mysql_service import MysqlService
 from slack import Slack
 from time_service import Time
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import messaging
 import os
 import logging
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # load_dotenv()   # aws lambda에선 환경변수로
 
@@ -12,9 +15,9 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    lambda_title = "mission_insert_batch"
+    lambda_title = "mission_push_batch"
     try:
-        slack = Slack(webhook_url=os.getenv("WEBHOOK_URL"), main_title=lambda_title)
+        slack = Slack(os.getenv("WEBHOOK_URL"), main_title=lambda_title)
 
         mysql = MysqlService(host=os.getenv("MYSQL_HOST"),
                              port=os.getenv("MYSQL_PORT"),
@@ -22,11 +25,13 @@ def lambda_handler(event, context):
                              user=os.getenv("MYSQL_USER"),
                              password=os.getenv("MYSQL_PASSWORD"))
 
-        result = init_default(mysql.get_mission())
-        mysql.bulk_insert(result)
+        cred = credentials.Certificate(cert=os.getenv("FIREBASE_KEY_NAME"))
+        firebase_admin.initialize_app(cred)
 
-        success_message = slack.create_status_post(end_time=Time.get_kst_now())
-        slack.post(success_message)
+        result = mysql.get_mission_push(kst_date=Time.get_kst_today_string(), kst_time=Time.get_kst_time_string())
+
+        for _ in map(send_push, result):
+            pass
 
         success_response = create_response(status_code=200,
                                            body=f"{lambda_title} success!",
@@ -45,23 +50,25 @@ def lambda_handler(event, context):
         return fail_response
 
 
-def init_default(missions):
-    records = []
+def send_push(item):
+    mission_description = item['description']
+    mission_alert_time = item['alert_time']
+    push_token = item['push_token']
 
-    kst_now = Time.get_kst_now()
-    today_string = Time.get_kst_today_string()
+    message = messaging.Message(
+        notification=messaging.Notification(
+            title='LUCK-KIDS 럭키즈🍀',
+            body=f"{mission_alert_time} '{mission_description}'로 행운을 +1 키워보아요!"
+        ),
+        token=push_token,
+    )
+    messaging.send(message)
 
-    for record in missions:
-        new_record = {
-            'created_date': kst_now,
-            'updated_date': kst_now,
-            'mission_date': today_string,
-            'mission_status': "FAILED",
-            'mission_id': record['id']
-        }
-        records.append(new_record)
-
-    return records
+    logger.info({
+        'push_token': push_token,
+        'mission_description': mission_description,
+        'mission_alert_time': mission_alert_time
+    })
 
 
 def create_response(status_code, body, end_time):
