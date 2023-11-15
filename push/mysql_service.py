@@ -38,7 +38,6 @@ class MysqlService:
                             AND m.push_date != '{kst_date}'
                             AND m.deleted_date IS NULL;
                     """
-                    print(sql)
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     return result

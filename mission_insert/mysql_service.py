@@ -60,7 +60,6 @@ class MysqlService:
             with connection.cursor(dictionary=True) as cursor:
                 try:
                     sql = "SELECT id FROM mission WHERE deleted_date IS NULL"
-                    print(sql)
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     return result

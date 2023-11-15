@@ -1,7 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
-import logging
 import os
 from mysql_service import MysqlService
 from slack import Slack
@@ -9,10 +8,6 @@ from time_service import Time
 from dotenv import load_dotenv
 
 # load_dotenv()   # aws lambda에선 환경변수로
-
-# 로거 설정
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
@@ -44,8 +39,7 @@ def lambda_handler(event, context):
                 ),
                 token=push_token,
             )
-            response = messaging.send(message)
-            logger.info(f'Successfully sent message: {response}')
+            messaging.send(message)
 
         return {
             'statusCode': 200,
