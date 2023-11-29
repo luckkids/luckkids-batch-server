@@ -29,14 +29,16 @@ class MysqlService:
         with self.connection_pool.get_connection() as connection:
             with connection.cursor(dictionary=True) as cursor:
                 try:
+
                     sql = f"""
-                        SELECT m.description, m.alert_time, p.push_token 
-                        FROM mission m 
-                        LEFT JOIN push p ON m.user_id = p.user_id 
-                        WHERE m.alert_status = 'CHECKED' 
-                            AND m.alert_time <= '{kst_time}' 
-                            AND m.push_date != '{kst_date}'
-                            AND m.deleted_date IS NULL;
+                    SELECT m.description, m.alert_time, p.push_token 
+                    FROM mission m 
+                    JOIN push p ON m.user_id = p.user_id 
+                    JOIN alert_setting a ON p.device_id = a.device_id AND a.mission = 'CHECKED' 
+                    WHERE m.alert_status = 'CHECKED' 
+                        AND m.alert_time <= '{kst_time}' 
+                        AND m.push_date != '{kst_date}' 
+                        AND m.deleted_date IS NULL;
                     """
                     cursor.execute(sql)
                     result = cursor.fetchall()
