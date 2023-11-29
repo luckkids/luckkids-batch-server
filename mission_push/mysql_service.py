@@ -4,7 +4,7 @@ from mysql.connector import pooling
 
 class MysqlService:
 
-    def __init__(self, host, port, database, user, password, pool_name='mission_insert_lambda', pool_size=5):
+    def __init__(self, host, port, database, user, password, pool_name='mission_push_lambda', pool_size=5):
 
         self.host = host
         self.port = port
@@ -25,43 +25,23 @@ class MysqlService:
         except Error as e:
             raise Exception(f"Error while connecting to MySQL using Connection pool: {e}") from e
 
-    def bulk_insert(self, records):
-        if not records:
-            return
-
-        connection = None
-        cursor = None
-
-        try:
-            connection = self.connection_pool.get_connection()
-            cursor = connection.cursor()
-
-            columns = ', '.join(records[0].keys())
-            placeholders = ', '.join(['%s'] * len(records[0]))
-            query = f"INSERT IGNORE INTO mission_outcome ({columns}) VALUES ({placeholders})"
-
-            values = [list(record.values()) for record in records]
-            cursor.executemany(query, values)
-            connection.commit()
-
-        except Exception as e:
-            if connection:
-                connection.rollback()
-            raise Exception(f"Error in MysqlService.bulk_insert: {e}") from e
-
-        finally:
-            if cursor:
-                cursor.close()
-            if connection:
-                connection.close()
-
-    def get_mission(self):
+    def get_mission_push(self, kst_date, kst_time):
         with self.connection_pool.get_connection() as connection:
             with connection.cursor(dictionary=True) as cursor:
                 try:
-                    sql = "SELECT id FROM mission WHERE deleted_date IS NULL"
+
+                    sql = f"""
+                    SELECT m.description, m.alert_time, p.push_token 
+                    FROM mission m 
+                    JOIN push p ON m.user_id = p.user_id 
+                    JOIN alert_setting a ON p.device_id = a.device_id AND a.mission = 'CHECKED' 
+                    WHERE m.alert_status = 'CHECKED' 
+                        AND m.alert_time <= '{kst_time}' 
+                        AND m.push_date != '{kst_date}' 
+                        AND m.deleted_date IS NULL;
+                    """
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     return result
                 except Error as e:
-                    raise Exception(f"Error in MysqlService.get_mission: {e}") from e
+                    raise Exception(f"Error in MysqlService.get_mission_push: {e}") from e

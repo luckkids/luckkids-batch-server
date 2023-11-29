@@ -1,3 +1,4 @@
 .env
 .idea
 /python_layer
+/mission_push/*.json
