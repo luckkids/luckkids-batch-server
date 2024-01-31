@@ -51,7 +51,7 @@ def lambda_handler(event, context):
 
 
 def send_push(item):
-    mission_description = item['description']
+    mission_description = item['mission_description']
     mission_alert_time = item['alert_time']
     push_token = item['push_token']
 
