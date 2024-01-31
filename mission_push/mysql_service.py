@@ -31,7 +31,7 @@ class MysqlService:
                 try:
 
                     sql = f"""
-                    SELECT m.description, m.alert_time, p.push_token 
+                    SELECT m.mission_description, m.alert_time, p.push_token 
                     FROM mission m 
                     JOIN push p ON m.user_id = p.user_id 
                     JOIN alert_setting a ON p.device_id = a.device_id AND a.mission = 'CHECKED' 

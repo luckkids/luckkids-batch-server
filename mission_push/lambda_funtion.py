@@ -6,7 +6,7 @@ from firebase_admin import credentials
 from firebase_admin import messaging
 import os
 import logging
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # load_dotenv()   # aws lambda에선 환경변수로
 
