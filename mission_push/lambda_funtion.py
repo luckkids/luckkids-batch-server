@@ -40,8 +40,8 @@ def lambda_handler(event, context):
 
         mysql.bulk_update_mission_push_date(idx_list=ID_LIST, kst_date=Time.get_kst_today_string())
 
-        success_message = slack.create_status_post(end_time=Time.get_kst_now())
-        slack.post(success_message)
+        # success_message = slack.create_status_post(end_time=Time.get_kst_now())
+        # slack.post(success_message)
         success_response = create_response(status_code=200,
                                            body=f"{lambda_title} success!",
                                            end_time=Time.get_kst_now())
