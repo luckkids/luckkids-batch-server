@@ -25,28 +25,12 @@ class MysqlService:
         except Error as e:
             raise Exception(f"Error while connecting to MySQL using Connection pool: {e}") from e
 
-    def get_random_message(self):
-        with self.connection_pool.get_connection() as connection:
-            with connection.cursor(dictionary=True) as cursor:
-                try:
-                    sql = f"""
-                    SELECT message_description 
-                    FROM luck_message 
-                    ORDER BY RAND() 
-                    LIMIT 1;
-                    """
-                    cursor.execute(sql)
-                    result = cursor.fetchone()
-                    return result
-                except Error as e:
-                    raise Exception(f"Error in MysqlService.get_random_message: {e}") from e
-
     def get_push_token(self):
         with self.connection_pool.get_connection() as connection:
             with connection.cursor(dictionary=True) as cursor:
                 try:
                     sql = f"""
-                    SELECT p.push_token 
+                    SELECT u.nickname, p.push_token 
                     FROM push p 
                     JOIN users u ON u.id = p.user_id
                     JOIN alert_setting als ON als.device_id = p.device_id
