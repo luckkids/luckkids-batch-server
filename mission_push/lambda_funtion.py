@@ -64,12 +64,23 @@ def send_push(item):
         mission_description = item['mission_description']
         mission_alert_time = item['alert_time']
         push_token = item['push_token']
+        sound = item['sound']
+
+        # iOS용 설정
+        apns_config = messaging.APNSConfig(
+            payload=messaging.APNSPayload(
+                aps=messaging.Aps(
+                    alert=messaging.ApsAlert(
+                        title='LUCK-KIDS 럭키즈🍀',
+                        body=f"{mission_alert_time} '{mission_description}'(으)로 행운을 +1 키워보아요!",
+                    ),
+                    sound=sound
+                )
+            )
+        )
 
         message = messaging.Message(
-            notification=messaging.Notification(
-                title='LUCK-KIDS 럭키즈🍀',
-                body=f"{mission_alert_time} '{mission_description}'(으)로 행운을 +1 키워보아요!"
-            ),
+            apns=apns_config,
             token=push_token,
         )
         messaging.send(message)

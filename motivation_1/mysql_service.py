@@ -30,7 +30,7 @@ class MysqlService:
             with connection.cursor(dictionary=True) as cursor:
                 try:
                     sql = f"""
-                    SELECT u.nickname, p.push_token 
+                    SELECT u.nickname, p.push_token, p.sound 
                     FROM push p 
                     JOIN users u ON u.id = p.user_id
                     JOIN alert_setting als ON als.device_id = p.device_id

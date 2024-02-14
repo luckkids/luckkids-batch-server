@@ -56,6 +56,7 @@ def init_default(missions):
             'created_date': kst_now,
             'updated_date': kst_now,
             'mission_date': today_string,
+            'success_checked': "UNCHECKED",
             'mission_status': "FAILED",
             'mission_id': record['id']
         }
