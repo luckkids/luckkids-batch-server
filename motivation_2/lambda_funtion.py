@@ -73,8 +73,13 @@ def send_push(item):
             )
         )
 
+        data = {
+            'screen': 'Home'
+        }
+
         message = messaging.Message(
             apns=apns_config,
+            data=data,
             token=push_token,
         )
         messaging.send(message)
