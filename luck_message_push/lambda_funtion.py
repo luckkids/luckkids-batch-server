@@ -31,10 +31,10 @@ def lambda_handler(event, context):
             firebase_admin.initialize_app(credential=cred)
 
         message = mysql.get_random_message()["message_description"]
-        user_tokens = mysql.get_push_token()
+        result = mysql.get_push_token()
 
-        for item in user_tokens:
-            send_push(message, item['push_token'])
+        for item in result:
+            send_push(message, item)
 
         success_message = slack.create_status_post(end_time=Time.get_kst_now())
         slack.post(success_message)
@@ -56,14 +56,26 @@ def lambda_handler(event, context):
         return fail_response
 
 
-def send_push(message, push_token):
+def send_push(message, item):
     try:
+        push_token = item['push_token']
+        sound = item['sound']
+
+        # iOS용 설정
+        apns_config = messaging.APNSConfig(
+            payload=messaging.APNSPayload(
+                aps=messaging.Aps(
+                    alert=messaging.ApsAlert(
+                        title='LUCK-KIDS 럭키즈🍀',
+                        body=message,
+                    ),
+                    sound=sound
+                )
+            )
+        )
 
         message = messaging.Message(
-            notification=messaging.Notification(
-                title='LUCK-KIDS 럭키즈🍀',
-                body=message
-            ),
+            apns=apns_config,
             token=push_token,
         )
         messaging.send(message)
