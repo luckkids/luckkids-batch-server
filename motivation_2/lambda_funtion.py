@@ -13,11 +13,9 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-ID_LIST = []
-
 
 def lambda_handler(event, context):
-    lambda_title = "mission_push_batch"
+    lambda_title = "motivation_2_batch"
     try:
         slack = Slack(os.getenv("WEBHOOK_URL"), main_title=lambda_title)
         mysql = MysqlService(host=os.getenv("MYSQL_HOST"),
@@ -32,16 +30,14 @@ def lambda_handler(event, context):
             cred = credentials.Certificate(cert=os.getenv("FIREBASE_KEY_NAME"))
             firebase_admin.initialize_app(credential=cred)
 
-        result = mysql.get_mission_push(kst_time=Time.get_kst_time_string(), kst_date=Time.get_kst_today_string())
+        result = mysql.get_push_token()
 
         for item in result:
             send_push(item)
-            ID_LIST.append(item['id'])
 
-        mysql.bulk_update_mission_push_date(idx_list=ID_LIST, kst_date=Time.get_kst_today_string())
+        success_message = slack.create_status_post(end_time=Time.get_kst_now())
+        slack.post(success_message)
 
-        # success_message = slack.create_status_post(end_time=Time.get_kst_now())
-        # slack.post(success_message)
         success_response = create_response(status_code=200,
                                            body=f"{lambda_title} success!",
                                            end_time=Time.get_kst_now())
@@ -61,8 +57,6 @@ def lambda_handler(event, context):
 
 def send_push(item):
     try:
-        mission_description = item['mission_description']
-        mission_alert_time = item['alert_time']
         push_token = item['push_token']
         sound = item['sound']
 
@@ -72,7 +66,7 @@ def send_push(item):
                 aps=messaging.Aps(
                     alert=messaging.ApsAlert(
                         title='LUCK-KIDS 럭키즈🍀',
-                        body=f"{mission_alert_time} '{mission_description}'(으)로 행운을 +1 키워보아요!",
+                        body="지난 달까지 키워온 럭키즈를 확인해보세요. 이번달도 렄렄!",
                     ),
                     sound=sound
                 )
@@ -80,7 +74,7 @@ def send_push(item):
         )
 
         data = {
-            'screen': 'Mission'
+            'screen': 'Home'
         }
 
         message = messaging.Message(
@@ -92,8 +86,7 @@ def send_push(item):
 
         logger.info({
             'push_token': push_token,
-            'mission_description': mission_description,
-            'mission_alert_time': str(mission_alert_time)
+            'luck_message': message
         })
 
     except Exception as e:
