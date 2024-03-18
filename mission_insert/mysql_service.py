@@ -4,7 +4,7 @@ from mysql.connector import pooling
 
 class MysqlService:
 
-    def __init__(self, host, port, database, user, password, pool_name='mission_insert_batch', pool_size=5):
+    def __init__(self, host, port, database, user, password, pool_name='mission_insert_batch', pool_size=2):
 
         self.host = host
         self.port = port
