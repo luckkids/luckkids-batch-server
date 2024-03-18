@@ -4,7 +4,7 @@ from mysql.connector import pooling
 
 class MysqlService:
 
-    def __init__(self, host, port, database, user, password, pool_name='mission_push_lambda', pool_size=5):
+    def __init__(self, host, port, database, user, password, pool_name='mission_push_lambda', pool_size=2):
 
         self.host = host
         self.port = port
@@ -32,8 +32,8 @@ class MysqlService:
                     sql = f"""
                     SELECT p.push_token, p.sound 
                     FROM push p 
-                    JOIN users u ON u.id = p.user_id
-                    JOIN alert_setting als ON als.device_id = p.device_id
+                    JOIN users u ON u.id = p.user_id 
+                    JOIN alert_setting als ON als.push_id = p.id 
                     WHERE als.luck_message = 'CHECKED';
                     """
                     cursor.execute(sql)
