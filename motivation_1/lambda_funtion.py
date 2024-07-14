@@ -66,7 +66,7 @@ def send_push(item):
             payload=messaging.APNSPayload(
                 aps=messaging.Aps(
                     alert=messaging.ApsAlert(
-                        title='LUCK-KIDS 럭키즈🍀',
+                        title='luckkids 럭키즈🍀',
                         body=f"이번 한 주 {nickname}님이 키워온 행운들을 보세요. 고생 많았어요!",
                     ),
                     sound=sound

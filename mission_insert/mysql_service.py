@@ -59,7 +59,7 @@ class MysqlService:
         with self.connection_pool.get_connection() as connection:
             with connection.cursor(dictionary=True) as cursor:
                 try:
-                    sql = "SELECT id FROM mission WHERE deleted_date IS NULL"
+                    sql = "SELECT id FROM mission WHERE mission_active = 'TRUE' AND deleted_date IS NULL"
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     return result
