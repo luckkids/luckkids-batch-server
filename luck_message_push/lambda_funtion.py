@@ -31,13 +31,13 @@ def lambda_handler(event, context):
             firebase_admin.initialize_app(credential=cred)
 
         message = mysql.get_random_message()["message_description"]
-        result = mysql.get_push_token()
+        result = mysql.get_push_token(Time.get_kst_hour_string())
 
         for item in result:
             send_push(message, item)
 
-        success_message = slack.create_status_post(end_time=Time.get_kst_now())
-        slack.post(success_message)
+        # success_message = slack.create_status_post(end_time=Time.get_kst_now())
+        # slack.post(success_message)
 
         success_response = create_response(status_code=200,
                                            body=f"{lambda_title} success!",

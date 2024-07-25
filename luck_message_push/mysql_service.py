@@ -41,7 +41,7 @@ class MysqlService:
                 except Error as e:
                     raise Exception(f"Error in MysqlService.get_random_message: {e}") from e
 
-    def get_push_token(self):
+    def get_push_token(self, kst_hour):
         with self.connection_pool.get_connection() as connection:
             with connection.cursor(dictionary=True) as cursor:
                 try:
@@ -50,7 +50,8 @@ class MysqlService:
                     FROM push p 
                     JOIN users u ON u.id = p.user_id 
                     JOIN alert_setting als ON als.push_id = p.id 
-                    WHERE als.luck_message = 'CHECKED';
+                    WHERE als.luck_message = 'CHECKED' 
+                        AND als.luck_message_alert_time = '{kst_hour}';
                     """
                     cursor.execute(sql)
                     result = cursor.fetchall()
