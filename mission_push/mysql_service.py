@@ -35,7 +35,7 @@ class MysqlService:
                     JOIN push p ON m.user_id = p.user_id 
                     JOIN alert_setting a ON p.id = a.push_id AND a.mission = 'CHECKED' 
                     WHERE m.alert_status = 'CHECKED' 
-                        AND m.alert_time <= '{kst_time}' 
+                        AND m.alert_time = '{kst_time}' 
                         AND m.push_date != '{kst_date}' 
                         AND m.deleted_date IS NULL;
                     """

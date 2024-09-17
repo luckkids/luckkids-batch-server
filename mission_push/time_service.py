@@ -14,7 +14,7 @@ class Time:
     @staticmethod
     def get_kst_time_string():
         now = Time.get_kst_now()
-        return now.strftime('%H:%M:%S')
+        return now.strftime('%H:%M')
 
     @staticmethod
     def get_am_pm(time_obj):
